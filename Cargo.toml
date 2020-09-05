@@ -1,0 +1,11 @@
+[package]
+name = "bevy_prototype_procedural_planets"
+version = "0.1.0"
+authors = ["ifletsomeclaire <69061963+ifletsomeclaire@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { path = "E:/Rust/Projects/bevy" }
+noise = "*"
