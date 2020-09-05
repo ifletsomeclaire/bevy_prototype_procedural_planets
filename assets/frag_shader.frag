@@ -33,5 +33,4 @@ void main() {
         v_Uv);
 # endif
     o_Target = v_color * acolor;
-
 }
