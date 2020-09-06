@@ -1,7 +1,5 @@
 #version 450
 
-in vec4 gl_FragCoord;
-
 layout(location = 0) in vec2 v_Uv;
 layout(location = 1) in float v_height;
 layout(location = 2) in vec4 v_color;
@@ -34,22 +32,5 @@ void main() {
         sampler2D(StellarMaterial_texture, StellarMaterial_texture_sampler),
         v_Uv);
 # endif
-
-    // vec3 cam_pos = vec3(camera_mat[3]);
-    vec3 cam_pos = vec3(camera_mat[3][0], camera_mat[3][1], camera_mat[3][2]);
-    float dist = distance(cam_pos, v_position);
-    if (dist < 10000) {
-        acolor = vec4(1.0, 0.0, 0.0, 1.0);
-    } else if (dist < 20000) {
-        acolor = vec4(1.0, 1.0, 0.0, 1.0);
-    } else if (dist < 30000) {
-        acolor = vec4(0.0, 1.0, 0.0, 1.0);
-    } else if (dist < 40000) {
-        acolor = vec4(0.0, 1.0, 1.0, 1.0);
-    } else {
-        acolor = vec4(0.0, 0.0, 1.0, 1.0);
-    }
-
-    // o_Target = v_color * acolor;
-    o_Target = acolor;
+    o_Target = v_color * acolor;
 }

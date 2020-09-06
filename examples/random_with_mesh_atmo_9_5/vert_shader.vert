@@ -16,20 +16,13 @@ layout(set = 0, binding = 0) uniform Camera {
 layout(set = 1, binding = 0) uniform Transform {
     mat4 Model;
 };
-layout(set = 1, binding = 5) uniform StellarMaterial_camera_pos {
-    mat4 camera_mat;
-};
-
 void main() {
-    vec3 cam_pos = vec3(camera_mat[3]);
-    float dist = distance(cam_pos, v_position);
-
     v_Uv = Vertex_Uv;
-    // vec3 center = vec3(Model[3]);
-    vec3 center = vec3(Model[3][0], Model[3][1], Model[3][2]);
+    vec3 center = vec3(Model[3]);
+    // vec3 center = vec3(Model[3][0], Model[3][1], Model[3][2]);
     v_height = distance(center, Vertex_Position);
     v_color = Vertex_Color;
     v_center = center;
-    v_position = Vertex_Position + center;
+    v_position = center + Vertex_Position;
     gl_Position = ViewProj * Model * vec4(Vertex_Position, 1.0);
 }

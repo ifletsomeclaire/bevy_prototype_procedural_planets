@@ -27,6 +27,17 @@ layout(set = 1, binding = 2) uniform texture2D StellarMaterial_texture;
 layout(set = 1, binding = 3) uniform sampler StellarMaterial_texture_sampler;
 # endif
 
+// Plot a line on Y using a value between 0.0-1.0
+float plot(vec2 st) {    
+    return smoothstep(0.30, 0.0, abs(st.y - st.x));
+}
+float plottwo(vec2 st) {    
+    return smoothstep(0.30, 0.0, abs(st.x - st.y));
+}
+
+
+
+
 void main() {
     vec4 acolor = color;
 # ifdef STELLARMATERIAL_TEXTURE
@@ -35,21 +46,20 @@ void main() {
         v_Uv);
 # endif
 
-    // vec3 cam_pos = vec3(camera_mat[3]);
-    vec3 cam_pos = vec3(camera_mat[3][0], camera_mat[3][1], camera_mat[3][2]);
-    float dist = distance(cam_pos, v_position);
-    if (dist < 10000) {
-        acolor = vec4(1.0, 0.0, 0.0, 1.0);
-    } else if (dist < 20000) {
-        acolor = vec4(1.0, 1.0, 0.0, 1.0);
-    } else if (dist < 30000) {
-        acolor = vec4(0.0, 1.0, 0.0, 1.0);
-    } else if (dist < 40000) {
-        acolor = vec4(0.0, 1.0, 1.0, 1.0);
-    } else {
-        acolor = vec4(0.0, 0.0, 1.0, 1.0);
-    }
+	vec2 st = gl_FragCoord.xy/vec2(600, 600);
+    float y = st.x;
 
-    // o_Target = v_color * acolor;
-    o_Target = acolor;
+    vec3 color = vec3(y);
+    vec3 colortwo = vec3(y);
+
+    // Plot a line
+    float pct = plot(st);
+    color = (0.2-pct)*color+pct*vec3(2.0,1.0,0.0);
+    float pcttwo = plottwo(st);
+    colortwo = (0.2-pcttwo)*colortwo+pcttwo*vec3(2.0,1.0,0.0);
+
+	acolor = vec4(color * colortwo,0.5);
+
+
+    o_Target = v_color * acolor;
 }
