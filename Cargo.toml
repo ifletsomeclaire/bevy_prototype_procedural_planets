@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 bevy = { path = "E:/Rust/Projects/bevy" }
 noise = "*"
+# hexasphere = "*"

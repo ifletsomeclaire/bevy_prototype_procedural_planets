@@ -64,11 +64,11 @@ fn setup(
     let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
         vertex: shaders.add(Shader::from_glsl(
             ShaderStage::Vertex,
-            include_str!("../../assets/vert_shader.vert"),
+            include_str!("vert_shader.vert"),
         )),
         fragment: Some(shaders.add(Shader::from_glsl(
             ShaderStage::Fragment,
-            include_str!("../../assets/frag_shader.frag"),
+            include_str!("frag_shader.frag"),
         ))),
     }));
     render_graph.add_system_node(

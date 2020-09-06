@@ -25,8 +25,8 @@ void main() {
     float dist = distance(cam_pos, v_position);
 
     v_Uv = Vertex_Uv;
-    // vec3 center = vec3(Model[3]);
-    vec3 center = vec3(Model[3][0], Model[3][1], Model[3][2]);
+    vec3 center = vec3(Model[3]);
+    // vec3 center = vec3(Model[3][0], Model[3][1], Model[3][2]);
     v_height = distance(center, Vertex_Position);
     v_color = Vertex_Color;
     v_center = center;

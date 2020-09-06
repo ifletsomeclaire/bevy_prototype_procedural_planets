@@ -1,8 +1,7 @@
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin},
-    math::{vec2, vec3, vec4},
+    math::{vec2, vec3},
     prelude::*,
-    render::camera::PerspectiveProjection,
     render::{
         mesh::shape,
         pipeline::{DynamicBinding, PipelineDescriptor, PipelineSpecialization, RenderPipeline},
@@ -12,10 +11,8 @@ use bevy::{
     },
 };
 use noise::*;
-
 mod wasd_camera;
 use wasd_camera::{CameraConfig, CameraMarker};
-// mod colored_mesh;
 
 #[derive(RenderResources, ShaderDefs)]
 struct StellarMaterial {
@@ -25,31 +22,31 @@ struct StellarMaterial {
     pub atmo_radius: f32,
     pub camera_pos: Mat4,
 }
-#[derive(RenderResources, ShaderDefs)]
-struct QuadMaterial {
-    pub basecolor: Color,
-    #[shader_def]
-    pub texture: Option<Handle<Texture>>,
-    pub atmo_radius: f32,
-    pub camera_pos: Mat4,
-}
+// #[derive(RenderResources, ShaderDefs)]
+// struct QuadMaterial {
+//     pub basecolor: Color,
+//     #[shader_def]
+//     pub texture: Option<Handle<Texture>>,
+//     pub atmo_radius: f32,
+//     pub camera_pos: Mat4,
+// }
 
-#[derive(Default)]
-struct AssetHandles {
-    planet_handle: Handle<StellarMaterial>,
-    quad_handle: Handle<StellarMaterial>,
-}
+// #[derive(Default)]
+// struct AssetHandles {
+//     planet_handle: Handle<StellarMaterial>,
+//     quad_handle: Handle<StellarMaterial>,
+// }
 
 fn main() {
     App::build()
         .add_resource(Msaa { samples: 4 })
         .add_default_plugins()
         .add_asset::<StellarMaterial>()
-        .add_asset::<QuadMaterial>()
+        // .add_asset::<QuadMaterial>()
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(PrintDiagnosticsPlugin::default())
         .add_resource(CameraConfig::default())
-        .add_resource(AssetHandles::default())
+        // .add_resource(AssetHandles::default())
         .add_plugin(wasd_camera::WasdCamera)
         .add_startup_system(setup.system())
         .add_system(update_camera_pass_through.system())
@@ -57,24 +54,24 @@ fn main() {
             stage::POST_UPDATE,
             asset_shader_defs_system::<StellarMaterial>.system(),
         )
-        .add_system_to_stage(
-            stage::POST_UPDATE,
-            asset_shader_defs_system::<QuadMaterial>.system(),
-        )
+        // .add_system_to_stage(
+        //     stage::POST_UPDATE,
+        //     asset_shader_defs_system::<QuadMaterial>.system(),
+        // )
         .run();
 }
 
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    asset_handles: Res<AssetHandles>,
+    // asset_handles: Res<AssetHandles>,
     mut pipelines: ResMut<Assets<PipelineDescriptor>>,
     mut shaders: ResMut<Assets<Shader>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StellarMaterial>>,
     mut render_graph: ResMut<RenderGraph>,
 ) {
-    // let texture_handle = asset_server.load("assets/unscaledFinalPlanet.png").unwrap();
+    let texture_handle = asset_server.load("assets/unscaledFinalPlanet.png").unwrap();
 
     let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
         vertex: shaders.add(Shader::from_glsl(
@@ -93,6 +90,39 @@ fn setup(
     render_graph
         .add_node_edge("stellar_material", base::node::MAIN_PASS)
         .unwrap();
+    let specialized_pipeline = RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
+        pipeline_handle,
+        PipelineSpecialization {
+            dynamic_bindings: vec![
+                // Transform
+                DynamicBinding {
+                    bind_group: 1,
+                    binding: 0,
+                },
+                // StellarMaterial_basecolor
+                DynamicBinding {
+                    bind_group: 1,
+                    binding: 1,
+                },
+                // StellarMaterial_texture
+                DynamicBinding {
+                    bind_group: 1,
+                    binding: 2,
+                },
+                // StellarMaterial_atmo_radius
+                DynamicBinding {
+                    bind_group: 1,
+                    binding: 4,
+                },
+                // StellarMaterial_camera_pos
+                DynamicBinding {
+                    bind_group: 1,
+                    binding: 5,
+                },
+            ],
+            ..Default::default()
+        },
+    )]);
 
     let material = materials.add(StellarMaterial {
         basecolor: Color::rgb(1.0, 1.0, 1.0),
@@ -165,39 +195,7 @@ fn setup(
     commands
         .spawn(MeshComponents {
             mesh: cube_handle,
-            render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
-                pipeline_handle,
-                PipelineSpecialization {
-                    dynamic_bindings: vec![
-                        // Transform
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 0,
-                        },
-                        // StellarMaterial_basecolor
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 1,
-                        },
-                        // StellarMaterial_texture
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 2,
-                        },
-                        // StellarMaterial_atmo_radius
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 4,
-                        },
-                        // StellarMaterial_camera_pos
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 5,
-                        },
-                    ],
-                    ..Default::default()
-                },
-            )]),
+            render_pipelines: specialized_pipeline.clone(),
             translation: Translation::new(0.0, 0.0, 0.0),
             ..Default::default()
         })
@@ -206,18 +204,19 @@ fn setup(
         size: vec2(10000.0, 5000.0),
         flip: false,
     });
-    // let quad = Mesh::from(shape::Plane {
-    //     size: 10000.0,
+    // let quad = Mesh::from(shape::Cube {
+    //     size: 5000.0,
     // });
 
     let quad_mat = materials.add(StellarMaterial {
         basecolor: Color {
-            r: 1.0,
+            r: 0.5,
             g: 0.0,
-            b: 1.0,
+            b: 0.5,
             a: 0.1,
         },
-        texture: None,
+        // texture: None,
+        texture: Some(texture_handle),
         atmo_radius: 0.0,
         camera_pos: Transform::default().value,
     });
@@ -225,39 +224,7 @@ fn setup(
     commands
         .spawn(MeshComponents {
             mesh: quad_handle,
-            render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
-                pipeline_handle,
-                PipelineSpecialization {
-                    dynamic_bindings: vec![
-                        // Transform
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 0,
-                        },
-                        // QuadMaterial_basecolor
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 1,
-                        },
-                        // QuadMaterial_texture
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 2,
-                        },
-                        // QuadMaterial_atmo_radius
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 4,
-                        },
-                        // QuadMaterial_camera_pos
-                        DynamicBinding {
-                            bind_group: 1,
-                            binding: 5,
-                        },
-                    ],
-                    ..Default::default()
-                },
-            )]),
+            render_pipelines: specialized_pipeline.clone(),
             translation: Translation::new(0.0, 0.0, 90000.0),
             ..Default::default()
         })
@@ -267,7 +234,6 @@ fn setup(
 fn update_camera_pass_through(
     mut materials: ResMut<Assets<StellarMaterial>>,
     // mut qmaterials: ResMut<Assets<QuadMaterial>>,
-    // handle: Res<AssetHandles>,
     mut query: Query<(&Transform, &CameraMarker)>,
 ) {
     for (trans, _cam) in &mut query.iter() {

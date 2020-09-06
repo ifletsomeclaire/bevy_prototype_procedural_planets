@@ -50,6 +50,6 @@ void main() {
         acolor = vec4(0.0, 0.0, 1.0, 1.0);
     }
 
-    // o_Target = v_color * acolor;
-    o_Target = acolor;
+    o_Target = v_color * acolor;
+    // o_Target = acolor;
 }
