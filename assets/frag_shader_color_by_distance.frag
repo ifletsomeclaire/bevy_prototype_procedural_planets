@@ -35,8 +35,8 @@ void main() {
         v_Uv);
 # endif
 
-    // vec3 cam_pos = vec3(camera_mat[3]);
-    vec3 cam_pos = vec3(camera_mat[3][0], camera_mat[3][1], camera_mat[3][2]);
+    vec3 cam_pos = vec3(camera_mat[3]);
+    // vec3 cam_pos = vec3(camera_mat[3][0], camera_mat[3][1], camera_mat[3][2]);
     float dist = distance(cam_pos, v_position);
     if (dist < 10000) {
         acolor = vec4(1.0, 0.0, 0.0, 1.0);

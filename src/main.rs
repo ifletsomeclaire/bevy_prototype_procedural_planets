@@ -31,47 +31,47 @@ struct StellarMaterial {
 //     pub camera_pos: Mat4,
 // }
 
-// #[derive(Default)]
-// struct AssetHandles {
-//     planet_handle: Handle<StellarMaterial>,
-//     quad_handle: Handle<StellarMaterial>,
-// }
+#[derive(Default)]
+struct AssetHandles {
+    quad_handle: Handle<Mesh>,
+}
+impl AssetHandles {
+    pub fn add_quad(&mut self, quad_handle: Handle<Mesh>) {
+        self.quad_handle = quad_handle;
+    }
+}
 
 fn main() {
     App::build()
         .add_resource(Msaa { samples: 4 })
         .add_default_plugins()
         .add_asset::<StellarMaterial>()
-        // .add_asset::<QuadMaterial>()
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(PrintDiagnosticsPlugin::default())
         .add_resource(CameraConfig::default())
-        // .add_resource(AssetHandles::default())
+        .add_resource(AssetHandles::default())
         .add_plugin(wasd_camera::WasdCamera)
         .add_startup_system(setup.system())
         .add_system(update_camera_pass_through.system())
+        .add_system(move_quad_with_camera.system())
         .add_system_to_stage(
             stage::POST_UPDATE,
             asset_shader_defs_system::<StellarMaterial>.system(),
         )
-        // .add_system_to_stage(
-        //     stage::POST_UPDATE,
-        //     asset_shader_defs_system::<QuadMaterial>.system(),
-        // )
         .run();
 }
 
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    // asset_handles: Res<AssetHandles>,
+    mut asset_handles: ResMut<AssetHandles>,
     mut pipelines: ResMut<Assets<PipelineDescriptor>>,
     mut shaders: ResMut<Assets<Shader>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StellarMaterial>>,
     mut render_graph: ResMut<RenderGraph>,
 ) {
-    let texture_handle = asset_server.load("assets/unscaledFinalPlanet.png").unwrap();
+    // let texture_handle = asset_server.load("assets/unscaledFinalPlanet.png").unwrap();
 
     let pipeline_handle = pipelines.add(PipelineDescriptor::default_config(ShaderStages {
         vertex: shaders.add(Shader::from_glsl(
@@ -149,7 +149,6 @@ fn setup(
                 // noise.push(n / 2.0 + 1.0);
                 n = (n + 1.0).max(0.5).min(0.8);
                 // n = 0.8;
-                println!("{}", n);
                 verts[0] *= n as f32;
                 verts[1] *= n as f32;
                 verts[2] *= n as f32;
@@ -204,9 +203,6 @@ fn setup(
         size: vec2(10000.0, 5000.0),
         flip: false,
     });
-    // let quad = Mesh::from(shape::Cube {
-    //     size: 5000.0,
-    // });
 
     let quad_mat = materials.add(StellarMaterial {
         basecolor: Color {
@@ -215,17 +211,19 @@ fn setup(
             b: 0.5,
             a: 0.1,
         },
-        // texture: None,
-        texture: Some(texture_handle),
+        texture: None,
+        // texture: Some(texture_handle),
         atmo_radius: 0.0,
         camera_pos: Transform::default().value,
     });
     let quad_handle = meshes.add(quad);
+    asset_handles.add_quad(quad_handle);
     commands
         .spawn(MeshComponents {
             mesh: quad_handle,
             render_pipelines: specialized_pipeline.clone(),
-            translation: Translation::new(0.0, 0.0, 90000.0),
+            // translation: Translation::new(0.0, 0.0, 90000.0),
+            transform: Transform::new_sync_disabled(Mat4::identity()),
             ..Default::default()
         })
         .with(quad_mat);
@@ -244,6 +242,23 @@ fn update_camera_pass_through(
         for handle in handles {
             if let Some(mat) = materials.get_mut(&handle) {
                 mat.camera_pos = trans.value;
+            }
+        }
+    }
+}
+
+fn move_quad_with_camera(
+    asset_handles: Res<AssetHandles>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut query: Query<(&Transform, &CameraMarker)>,
+    mut mesh_query: Query<(&mut Transform, &Handle<Mesh>)>,
+) {
+    for (trans, _cam) in &mut query.iter() {
+        for (mut mesh_trans, handle) in &mut mesh_query.iter() {
+            if handle == &asset_handles.quad_handle {
+                let (scale, rotation, translation) = trans.value.to_scale_rotation_translation();
+                let quad_pos = rotation.mul_vec3(vec3(0.0, 0.0, -100.0)) + translation;
+                mesh_trans.value = Mat4::from_scale_rotation_translation(scale, rotation, quad_pos);
             }
         }
     }

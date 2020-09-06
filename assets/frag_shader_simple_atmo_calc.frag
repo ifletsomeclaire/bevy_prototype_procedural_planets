@@ -46,7 +46,7 @@ vec2 rsi(vec3 r0, vec3 rd, float sr) {
     );
 }
 
-
+// does not account for actual planet, just view from on land.......
 vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {
     // Normalize the sun and view directions.
     pSun = normalize(pSun);
@@ -147,10 +147,10 @@ void main() {
     vec3 cam_pos = vec3(camera_mat[3]);
 
     vec3 atmo_color = atmosphere(
-        normalize(v_position - cam_pos),
+        normalize(v_position),
         cam_pos,
-        v_position - vec3(400000.0, 0.0, 100000.0),
-        22.0,
+        cam_pos,
+        200.0,
         40000,
         45000,
         vec3(5.5e-6, 13.0e-6, 22.4e-6),
