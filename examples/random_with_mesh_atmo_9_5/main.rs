@@ -2,7 +2,7 @@ use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, PrintDiagnosticsPlugin},
     math::vec3,
     prelude::*,
-    render::camera::PerspectiveProjection,
+    // render::camera::PerspectiveProjection,
     render::{
         mesh::shape,
         pipeline::{DynamicBinding, PipelineDescriptor, PipelineSpecialization, RenderPipeline},
@@ -52,7 +52,7 @@ fn main() {
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    // asset_server: Res<AssetServer>,
     mut pipelines: ResMut<Assets<PipelineDescriptor>>,
     mut shaders: ResMut<Assets<Shader>>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -98,7 +98,7 @@ fn setup(
     });
     let mut atmo = Mesh::from(shape::Icosphere {
         radius: 42000.,
-        subdivisions: 20
+        subdivisions: 20,
     });
 
     match mesh.attributes[0].values {
@@ -260,7 +260,6 @@ fn setup(
             ..Default::default()
         })
         .with(material);
-
 }
 
 fn update_camera_pass_through(

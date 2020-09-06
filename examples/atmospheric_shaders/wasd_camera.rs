@@ -1,12 +1,12 @@
 // use super::*;
 use bevy::{
-    input::mouse::MouseMotion,
+    // input::mouse::MouseMotion,
     input::system::exit_on_esc_system,
     math::{vec3, Quat, Vec3},
     prelude::*,
-    render::camera::{PerspectiveProjection, Camera},
-    window::Window,
-    winit::WinitWindows,
+    render::camera::{Camera, PerspectiveProjection},
+    // window::Window,
+    // winit::WinitWindows,
 };
 pub struct WasdCamera;
 
@@ -88,8 +88,8 @@ impl WasdCamera {
             .with(CameraMarker);
     }
     fn momentum(
-        config: Res<CameraConfig>,
-        mut moment: ResMut<Momentum>,
+        // config: Res<CameraConfig>,
+        moment: Res<Momentum>,
         mut query: Query<(&CameraMarker, &Camera, &mut Translation, &mut Rotation)>,
     ) {
         for (_, _, mut trans, _) in &mut query.iter() {
@@ -142,7 +142,7 @@ impl WasdCamera {
         }
     }
     fn cursor(
-        config: Res<CameraConfig>,
+        // config: Res<CameraConfig>,
         windows: Res<Windows>,
         mut cursor: ResMut<CursorListener>,
         cursor_moved_events: Res<Events<CursorMoved>>,
@@ -160,7 +160,7 @@ impl WasdCamera {
     fn camera(
         config: Res<CameraConfig>,
 
-        time: Res<Time>,
+        // time: Res<Time>,
         state: Res<CursorListener>,
         mut query: Query<(&CameraMarker, &Camera, &mut Translation, &mut Rotation)>,
     ) {
@@ -192,7 +192,7 @@ impl WasdCamera {
             (_, y) if y < neg_marg => y_pan -= config.pan * (y - neg_marg),
             _ => return,
         }
-        for (_, _, mut translation, mut rot) in &mut query.iter() {
+        for (_, _, mut _translation, mut rot) in &mut query.iter() {
             // *translation.x_mut() -= x_pan * time.delta_seconds;
             // *translation.y_mut() -= y_pan * time.delta_seconds;
             rot.0 = rot
