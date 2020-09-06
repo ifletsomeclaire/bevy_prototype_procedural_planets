@@ -149,7 +149,7 @@ void main() {
     vec3 atmo_color = atmosphere(
         normalize(v_position - cam_pos), // normalized direction from camera to vertex
         cam_pos, // camera position
-        vec3(400000.0, 0.0, 100000.0), // position of the sun
+        vec3(0.0, 0.0, 100000.0), // position of the sun
         202.0, // intensity of the sun
         40000, // planet radius
         45000, // atmo radius

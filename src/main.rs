@@ -258,8 +258,10 @@ fn move_quad_with_camera(
         for (mut mesh_trans, handle) in &mut mesh_query.iter() {
             if handle == &asset_handles.quad_handle {
                 let (scale, rotation, translation) = trans.value.to_scale_rotation_translation();
-                let quad_pos = rotation.mul_vec3(vec3(0.0, 0.0, -100000.0)) + translation;
-                mesh_trans.value = Mat4::from_scale_rotation_translation(scale, rotation, quad_pos);
+                // let quad_pos = rotation.mul_vec3(vec3(0.0, 0.0, -100000.0)) + translation;
+                // mesh_trans.value = Mat4::from_scale_rotation_translation(scale, rotation, quad_pos);
+                let quad_pos = vec3(0.0, 0.0, -10000.0);
+                mesh_trans.value = Mat4::from_translation(quad_pos);
             }
         }
     }
