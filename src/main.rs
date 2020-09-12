@@ -135,7 +135,7 @@ fn setup(
         translation: Translation::new(40000.0, -4.0, 100000.0),
         ..Default::default()
     });
-    // let mut noise = Vec::new();
+    let mut noise = Vec::new();
     let mut mesh = Mesh::from(shape::Icosphere {
         radius: 50000.,
         subdivisions: 20,
@@ -146,7 +146,7 @@ fn setup(
             for verts in val {
                 let x = noise::RidgedMulti::new();
                 let mut n = x.get([verts[0] as f64, verts[1] as f64, verts[2] as f64]);
-                // noise.push(n / 2.0 + 1.0);
+                noise.push(n / 2.0 + 1.0);
                 n = (n + 1.0).max(0.5).min(0.8);
                 // n = 0.8;
                 verts[0] *= n as f32;
@@ -172,7 +172,7 @@ fn setup(
                 // } else {
                 //     noise[i + 1]
                 // };
-                // chose 1-n to make the planet colors darker because apparently my values are very close to 1
+                // // chose 1-n to make the planet colors darker because apparently my values are very close to 1
                 // verts[0] = 1.0 - m as f32;
                 // verts[1] = 1.0 - n as f32;
                 // verts[2] = 1.0 - o as f32;
@@ -258,10 +258,10 @@ fn move_quad_with_camera(
         for (mut mesh_trans, handle) in &mut mesh_query.iter() {
             if handle == &asset_handles.quad_handle {
                 let (scale, rotation, translation) = trans.value.to_scale_rotation_translation();
-                // let quad_pos = rotation.mul_vec3(vec3(0.0, 0.0, -100000.0)) + translation;
-                // mesh_trans.value = Mat4::from_scale_rotation_translation(scale, rotation, quad_pos);
-                let quad_pos = vec3(0.0, 0.0, -10000.0);
-                mesh_trans.value = Mat4::from_translation(quad_pos);
+                let quad_pos = rotation.mul_vec3(vec3(0.0, 0.0, -110000.0)) + translation;
+                mesh_trans.value = Mat4::from_scale_rotation_translation(scale, rotation, quad_pos);
+                // let quad_pos = vec3(0.0, 0.0, -10000.0);
+                // mesh_trans.value = Mat4::from_translation(quad_pos);
             }
         }
     }
